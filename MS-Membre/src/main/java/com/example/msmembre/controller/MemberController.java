@@ -5,6 +5,7 @@ import com.example.msmembre.entities.Student;
 import com.example.msmembre.entities.TeacherResearcher;
 import com.example.msmembre.service.IMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -17,18 +18,39 @@ import java.util.Optional;
 
 @RestController()
 @RequestMapping(path = "/api/member")
-@CrossOrigin("*")
+@CrossOrigin()
 public class MemberController {
     @Autowired
     IMemberService iMemberService;
+
     @GetMapping(value = "/members")
     public List<Member> findAllMembers() {
         return iMemberService.findAll();
     }
+
+    @GetMapping("/findStudentBySearch")
+    public List<Student> findByFirstNameOrLastName(@RequestParam String firstName,
+                                                   @RequestParam String lastName,
+                                                   @RequestParam String cin,
+                                                   @RequestParam String diploma) {
+        return iMemberService.findByFirstNameAndLastNameAndCinAndDiploma(firstName, lastName, cin, diploma);
+    }
+
+    @GetMapping("/findTeacherBySearch")
+    public List<TeacherResearcher> findByFirstNameAndLastNameAndCinAndEtablishmentAndGrade(@RequestParam String firstName,
+                                                                                           @RequestParam String lastName,
+                                                                                           @RequestParam String cin,
+                                                                                           @RequestParam String etablishment,
+                                                                                           @RequestParam String grade
+    ) {
+        return iMemberService.findByFirstNameAndLastNameAndCinAndEtablishmentAndGrade(firstName, lastName, cin, etablishment, grade);
+    }
+
     @GetMapping(value = "/students")
     public List<Student> findAllStudents() {
         return iMemberService.findAllStudents();
     }
+
     @GetMapping(value = "/teachers")
     public List<TeacherResearcher> findAllTeachers() {
         return iMemberService.findAllTeachers();
@@ -72,30 +94,24 @@ public class MemberController {
         return iMemberService.updateMember(teacherResearcher);
     }
 
-    @PutMapping(value = "/affectSupervisorToStudent")
-    public Member affectSupervisorToStudent(@RequestParam Long idStudent, @RequestParam Long idSupervisor) {
-        return iMemberService.affectSupervisorToStudent(idStudent, idSupervisor);
+    @PutMapping(value = "/affectSupervisorToStudent/{idSupervisor}")
+    public Member affectSupervisorToStudent(@RequestBody Student student ,@PathVariable Long idSupervisor) {
+        return iMemberService.affectSupervisorToStudent(student, idSupervisor);
     }
 
-//	@GetMapping("/publications/{id}")
-//	public EntityModel<PublicationBean> listerunepublication(@PathVariable Long id)
-//	{
-//		return publicationproxy.recupererUnePublication(id);
-//
-//	}
-//	@GetMapping("/publications/auteur/{id}")
-//	public List<PublicationBean>listerpublicationbymembre(@PathVariable(name="id") Long idaut)
-//	{
-//		return iMemberService.findPublicationparauteur(idaut);
-//	}
+    @GetMapping("/findByInscriptionDatePeriod")
+    public List<Student> findStudentByInscriptionDateBetween(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date inscriptionDateGT,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date inscriptionDateLT) {
+        return iMemberService.findStudentByInscriptionDateBetween(inscriptionDateGT, inscriptionDateLT);
 
-//	@GetMapping("/fullmember/{id}")
-//	public Membre findAFullMember(@PathVariable(name="id") Long id)
-//	{
-//		Membre mbr=iMemberService.findMemberById(id);
-//		mbr.setPubs(iMemberService.findPublicationparauteur(id));
-//		return mbr;
-//	}
+    }
+
+    @GetMapping("/studentsBySupervisorName")
+    public List<Student> getAllStudentsBySupervisorName(@RequestParam String name)
+        {
+            return iMemberService.getAllStudentsBySupervisorName(name);
+        }
 
 
-}
+    }

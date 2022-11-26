@@ -4,6 +4,7 @@ import com.example.msmembre.entities.Member;
 import com.example.msmembre.entities.Student;
 import com.example.msmembre.entities.TeacherResearcher;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,27 +19,23 @@ public interface IMemberService {
 
     List<Member> findAll();
 
-    //Filtrage par propriété
-    Member findByCin(String cin);
-    Member findByEmail(String email);
+    List<Student>findByFirstNameAndLastNameAndCinAndDiploma(String firstName,String lastName,String cin,String diploma);
+    List<TeacherResearcher>findByFirstNameAndLastNameAndCinAndEtablishmentAndGrade(String firstName, String lastName,String cin,String etablishment,String grade);
 
-    List<Member> findByFirstName(String firstName);
 
     //recherche spécifique des étudiants
     List<Student> findAllStudents();
+    List<Student> findAllStudentsBySupervisor(Long id);
+    List<Student> findStudentByInscriptionDateBetween(Date inscriptionDateGT, Date inscriptionDateLT);
+    List<Student> getAllStudentsBySupervisorName(String name);
 
-    List<Student> findByDiploma(String diploma);
 
     //recherche spécifique des enseignants
     List<TeacherResearcher> findAllTeachers();
 
-    List<TeacherResearcher> findByGrade(String grade);
-
-    List<TeacherResearcher> findByEtablishment(String etablishment);
-
     //other ...
 
-    Student affectSupervisorToStudent(Long idStudent, Long idSupervisor);
+    Student affectSupervisorToStudent(Student student , Long idSupervisor);
 
 
 }

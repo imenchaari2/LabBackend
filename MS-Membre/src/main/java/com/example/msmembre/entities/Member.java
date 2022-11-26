@@ -25,6 +25,8 @@ public abstract class Member implements Serializable {
     private String firstName;
     @NonNull
     private String lastName;
+    @Transient
+    private String fullName;
     private String type;
     @NonNull
     private String cin;
@@ -44,4 +46,7 @@ public abstract class Member implements Serializable {
 //    @Transient
 //    List<ArticleBean> articles;
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

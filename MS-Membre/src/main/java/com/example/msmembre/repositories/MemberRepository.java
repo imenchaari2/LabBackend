@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Member findByCin(String cin);
-    List<Member>findByFirstNameStartingWith(String caractere);
+    List<Member>findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName,String lastName);
     Member findByEmail(String email);
 }
