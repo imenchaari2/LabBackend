@@ -20,6 +20,7 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articleId;
     private Long authorId;
+    private String authorName;
     @NonNull
     private String title;
     @NonNull

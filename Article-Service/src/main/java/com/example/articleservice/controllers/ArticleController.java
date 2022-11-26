@@ -3,8 +3,16 @@ package com.example.articleservice.controllers;
 import com.example.articleservice.entities.Article;
 import com.example.articleservice.services.ImpArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -28,17 +36,11 @@ public class ArticleController {
     {
         return articleService.findArticleById(id);
     }
-    @GetMapping(value = "/findArticleByType")
-    public Article findArticleByTypeMatchesRegex(@RequestParam String type)
+    @GetMapping(value = "/findArticleBySearch")
+    public List<Article> findArticleByTypeMatchesRegex(@RequestParam String title,@RequestParam String type)
     {
-        return articleService.findArticleByTypeMatchesRegex(type);
+        return articleService.findArticleByTitleAndType(title,type);
     }
-    @GetMapping(value = "/findArticleByTitle")
-    public Article findArticleByTitleMatchesRegex(@RequestParam String title)
-    {
-        return articleService.findArticleByTitleMatchesRegex(title);
-    }
-
     @GetMapping(value = "/articles")
     public List<Article> findAll()
     {
@@ -58,5 +60,17 @@ public class ArticleController {
 	public List<Article> getAllArticlesByMember(@PathVariable Long idMember)
 	{
         return articleService.getAllArticlesByMember(idMember);
+    }
+    @GetMapping("/articlesByAuthorName")
+    public List<Article> getAllArticlesByAuthorName(@RequestParam String name)
+    {
+        return articleService.getAllArticlesByAuthorName(name);
+    }
+    @GetMapping("/findByCreatedDatePeriod")
+    public List<Article> findArticleByCreatedDateBetween(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date createdDateGT,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date createdDateLT) {
+       return articleService.findArticleByCreatedDateBetween(createdDateGT,createdDateLT);
+
     }
 }
