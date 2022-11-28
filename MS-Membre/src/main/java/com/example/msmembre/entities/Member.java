@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -36,13 +37,14 @@ public abstract class Member implements Serializable {
     private String password;
     @NonNull
     private String cv;
-    @Temporal(TemporalType.DATE)
     @NonNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
     private Date birthDate;
     @Temporal(TemporalType.DATE)
     private Date createdDate;
-    @Lob
-    private byte[] photo;
+//    @Lob
+    private String photo;
 //    @Transient
 //    List<ArticleBean> articles;
 

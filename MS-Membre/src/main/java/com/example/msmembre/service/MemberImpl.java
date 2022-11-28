@@ -10,6 +10,8 @@ import com.example.msmembre.repositories.TeacherResearcherRepository;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -17,10 +19,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -40,9 +40,15 @@ public class MemberImpl implements IMemberService {
     public Optional<Member> findMemberById(Long id) {
         return memberRepository.findById(id);
     }
-
-    public Member addMember(Member m) {
+    public Member addTeacher(Member m) {
         m.setCreatedDate(new Date());
+        memberRepository.save(m);
+        return m;
+    }
+    public Member addMember(Member m, String cv, String photo) {
+        m.setCreatedDate(new Date());
+        m.setCv(cv);
+        m.setPhoto(photo);
         memberRepository.save(m);
         return m;
     }
@@ -55,9 +61,11 @@ public class MemberImpl implements IMemberService {
         memberRepository.deleteById(id);
     }
 
-    public Member updateMember(Member m) {
+    public Member updateMember(Member m,String cv, String photo) {
         Member member = memberRepository.findById(m.getId()).get();
         m.setCreatedDate(member.getCreatedDate());
+        m.setCv(cv);
+        m.setPhoto(photo);
         return memberRepository.saveAndFlush(m);
     }
 
@@ -129,45 +137,47 @@ public class MemberImpl implements IMemberService {
         List<Student> studentsByMember = Lists.newArrayList();
         List<Student> students = findAllStudents();
         students.forEach(student -> {
-                if (student.getSupervisor() != null && student.getSupervisor().getId().equals(id)) {
-                    studentsByMember.add(student);
-                }
-            });
-            return studentsByMember;
-        }
-
-        @Override
-        public List<Student> findStudentByInscriptionDateBetween (Date inscriptionDateGT, Date inscriptionDateLT){
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            List<Predicate> predicates = new ArrayList<>();
-            CriteriaQuery<Student> cq = cb.createQuery(Student.class);
-            Root<Student> student = cq.from(Student.class);
-
-            if (inscriptionDateGT != null && inscriptionDateLT != null) {
-                predicates.add(cb.greaterThanOrEqualTo(student.get("inscriptionDate"), inscriptionDateGT));
-                predicates.add(cb.lessThanOrEqualTo(student.get("inscriptionDate"), inscriptionDateLT));
+            if (student.getSupervisor() != null && student.getSupervisor().getId().equals(id)) {
+                studentsByMember.add(student);
             }
-
-            cq.where(predicates.toArray(new Predicate[0]));
-
-            return em.createQuery(cq).getResultList();
-        }
-
-
-        @Override
-        public List<TeacherResearcher> findAllTeachers () {
-            return teacherResearcherRepository.findAll();
-        }
-
-        @Override
-        public Student affectSupervisorToStudent (Student student, Long idSupervisor){
-            TeacherResearcher supervisor = teacherResearcherRepository.findById(idSupervisor).get();
-            student.setSupervisor(supervisor);
-            return studentRepository.save(student);
-        }
-        @Override
-        public List<Student> getAllStudentsBySupervisorName (String name){
-            return studentRepository.findStudentBySupervisor_FirstNameContainingIgnoreCase(name);
-        }
-
+        });
+        return studentsByMember;
     }
+
+    @Override
+    public List<Student> findStudentByInscriptionDateBetween(Date inscriptionDateGT, Date inscriptionDateLT) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        List<Predicate> predicates = new ArrayList<>();
+        CriteriaQuery<Student> cq = cb.createQuery(Student.class);
+        Root<Student> student = cq.from(Student.class);
+
+        if (inscriptionDateGT != null && inscriptionDateLT != null) {
+            predicates.add(cb.greaterThanOrEqualTo(student.get("inscriptionDate"), inscriptionDateGT));
+            predicates.add(cb.lessThanOrEqualTo(student.get("inscriptionDate"), inscriptionDateLT));
+        }
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+        return em.createQuery(cq).getResultList();
+    }
+
+
+    @Override
+    public List<TeacherResearcher> findAllTeachers() {
+        return teacherResearcherRepository.findAll();
+    }
+
+    @Override
+    public Student affectSupervisorToStudent(Student student, Long idSupervisor) {
+        TeacherResearcher supervisor = teacherResearcherRepository.findById(idSupervisor).get();
+        student.setSupervisor(supervisor);
+        return studentRepository.save(student);
+    }
+
+    @Override
+    public List<Student> getAllStudentsBySupervisorName(String name) {
+        return studentRepository.findStudentBySupervisor_FirstNameContainingIgnoreCase(name);
+    }
+
+
+}
