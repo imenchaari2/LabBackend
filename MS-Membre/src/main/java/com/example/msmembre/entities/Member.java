@@ -35,16 +35,16 @@ public abstract class Member implements Serializable {
     private String email;
     @NonNull
     private String password;
-    @NonNull
-    private String cv;
+    @OneToOne
+    private File cv;
     @NonNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date birthDate;
     @Temporal(TemporalType.DATE)
     private Date createdDate;
-//    @Lob
-    private String photo;
+    @OneToOne
+    private File photo;
 //    @Transient
 //    List<ArticleBean> articles;
 
