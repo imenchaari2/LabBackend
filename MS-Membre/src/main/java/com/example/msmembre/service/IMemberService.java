@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IMemberService {
-    Member addTeacher(Member m);
-    Member addMember(Member m,String cv, String photo);
+    Member addMember(Member m);
+//    Member addMember(Member m,String cv, String photo);
     void deleteMember(Long id);
 
-    Member updateMember(Member p,String cv, String photo);
+//    Member updateMember(Member p,String cv, String photo);
 
     Optional<Member> findMemberById(Long id);
 

@@ -49,17 +49,17 @@ public class ImpArticleService implements IArticleService {
     }
 
     @Override
-    public List<Article> findArticleByTitleAndType(String title , String type) {
+    public List<Article> findArticleByTitleAndType(String title, String type) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> predicates = new ArrayList<>();
         CriteriaQuery<Article> cq = cb.createQuery(Article.class);
         Root<Article> article = cq.from(Article.class);
 
         if (title != null) {
-            predicates.add(cb.like(article.get("title"),  "%" + title + "%"));
+            predicates.add(cb.like(article.get("title"), "%" + title + "%"));
         }
         if (type != null) {
-            predicates.add(cb.like(article.get("type"),  "%" + type + "%"));
+            predicates.add(cb.like(article.get("type"), "%" + type + "%"));
         }
 
         cq.where(predicates.toArray(new Predicate[0]));
@@ -73,8 +73,13 @@ public class ImpArticleService implements IArticleService {
 
         List<Article> articles = articleRepository.findAll();
         articles.forEach(article -> {
-            MemberBean memberBean = memberProxy.getMemberById(article.getAuthorId());
-            article.setAuthorName(memberBean.getFirstName()+" "+memberBean.getLastName());
+            if (article.getAuthorId() != null) {
+                MemberBean memberBean = memberProxy.getMemberById(article.getAuthorId());
+                article.setAuthorName(memberBean.getFirstName() + " " + memberBean.getLastName());
+            } else {
+                article.setAuthorId(null);
+                article.setAuthorName(null);
+            }
             articleRepository.saveAndFlush(article);
         });
         return articles;
@@ -85,7 +90,7 @@ public class ImpArticleService implements IArticleService {
         MemberBean memberBean = memberProxy.getMemberById(idAuthor);
         Article article = findArticleById(idArticle);
         article.setAuthorId(idAuthor);
-        article.setAuthorName(memberBean.getFirstName()+" "+memberBean.getLastName());
+        article.setAuthorName(memberBean.getFirstName() + " " + memberBean.getLastName());
         return articleRepository.saveAndFlush(article);
     }
 
@@ -106,7 +111,7 @@ public class ImpArticleService implements IArticleService {
         Root<Article> article = cq.from(Article.class);
 
         if (name != null) {
-            predicates.add(cb.like(article.get("authorName"),  "%" + name + "%"));
+            predicates.add(cb.like(article.get("authorName"), "%" + name + "%"));
         }
 
         cq.where(predicates.toArray(new Predicate[0]));

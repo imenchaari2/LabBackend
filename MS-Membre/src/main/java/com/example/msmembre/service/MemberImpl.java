@@ -40,18 +40,18 @@ public class MemberImpl implements IMemberService {
     public Optional<Member> findMemberById(Long id) {
         return memberRepository.findById(id);
     }
-    public Member addTeacher(Member m) {
+    public Member addMember(Member m) {
         m.setCreatedDate(new Date());
         memberRepository.save(m);
         return m;
     }
-    public Member addMember(Member m, String cv, String photo) {
-        m.setCreatedDate(new Date());
-        m.setCv(cv);
-        m.setPhoto(photo);
-        memberRepository.save(m);
-        return m;
-    }
+//    public Member addMember(Member m, String cv, String photo) {
+//        m.setCreatedDate(new Date());
+//        m.setCv(cv);
+//        m.setPhoto(photo);
+//        memberRepository.save(m);
+//        return m;
+//    }
 
     public void deleteMember(Long id) {
         List<Student> students = findAllStudentsBySupervisor(id);
@@ -61,13 +61,13 @@ public class MemberImpl implements IMemberService {
         memberRepository.deleteById(id);
     }
 
-    public Member updateMember(Member m,String cv, String photo) {
-        Member member = memberRepository.findById(m.getId()).get();
-        m.setCreatedDate(member.getCreatedDate());
-        m.setCv(cv);
-        m.setPhoto(photo);
-        return memberRepository.saveAndFlush(m);
-    }
+//    public Member updateMember(Member m,String cv, String photo) {
+//        Member member = memberRepository.findById(m.getId()).get();
+//        m.setCreatedDate(member.getCreatedDate());
+//        m.setCv(cv);
+//        m.setPhoto(photo);
+//        return memberRepository.saveAndFlush(m);
+//    }
 
     public List<Member> findAll() {
         return memberRepository.findAll();
