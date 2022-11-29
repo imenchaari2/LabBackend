@@ -74,7 +74,12 @@ public class ImpArticleService implements IArticleService {
         List<Article> articles = articleRepository.findAll();
         articles.forEach(article -> {
             MemberBean memberBean = memberProxy.getMemberById(article.getAuthorId());
-            article.setAuthorName(memberBean.getFirstName()+" "+memberBean.getLastName());
+            if (memberBean != null) {
+                article.setAuthorName(memberBean.getFirstName()+" "+memberBean.getLastName());
+            }else{
+                article.setAuthorId(null);
+                article.setAuthorName(null);
+            }
             articleRepository.saveAndFlush(article);
         });
         return articles;
