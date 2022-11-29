@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-@EnableEurekaClient
 public class ArticleServiceApplication {
 
     public static void main(String[] args) {
