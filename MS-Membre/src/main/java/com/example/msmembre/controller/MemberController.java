@@ -1,10 +1,10 @@
 package com.example.msmembre.controller;
-
 import com.example.msmembre.entities.File;
 import com.example.msmembre.entities.Member;
 import com.example.msmembre.entities.Student;
 import com.example.msmembre.entities.TeacherResearcher;
 import com.example.msmembre.repositories.FileRepository;
+import com.example.msmembre.repositories.MemberRepository;
 import com.example.msmembre.service.IMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -14,30 +14,17 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.*;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
-
-import static java.nio.file.Files.copy;
 import static java.nio.file.Paths.get;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.CONTENT_DISPOSITION;
-
-
 @RestController()
 @RequestMapping(path = "/api/member")
 @CrossOrigin()
@@ -45,9 +32,68 @@ public class MemberController {
     @Autowired
     IMemberService iMemberService;
     @Autowired
+    MemberRepository memberRepository;
+    @Autowired
     FileRepository fileRepository;
+
+//    @GetMapping(path = {"/get/{imageName}"})
+//    public File getImage(@PathVariable("imageName") String imageName) throws IOException {
+//        final Optional<File> retrievedImage = fileRepository.findByName(imageName);
+//        return new File(retrievedImage.get().getName(), retrievedImage.get().getType(),
+//                decompressBytes(retrievedImage.get().getData()));
+//    }
+
+//    // compress the image bytes before storing it in the database
+//    public static byte[] compressBytes(byte[] data) {
+//        Deflater deflater = new Deflater();
+//        deflater.setInput(data);
+//        deflater.finish();
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+//        byte[] buffer = new byte[1024];
+//        while (!deflater.finished()) {
+//            int count = deflater.deflate(buffer);
+//            outputStream.write(buffer, 0, count);
+//        }
+//        try {
+//            outputStream.close();
+//        } catch (IOException e) {
+//        }
+//        System.out.println("Compressed Image Byte Size - " + outputStream.toByteArray().length);
+//        return outputStream.toByteArray();
+//    }
+//
+//    // uncompress the image bytes before returning it to the angular application
+//    public static byte[] decompressBytes(byte[] data) {
+//        Inflater inflater = new Inflater();
+//        inflater.setInput(data);
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+//        byte[] buffer = new byte[1024];
+//        try {
+//            while (!inflater.finished()) {
+//                int count = inflater.inflate(buffer);
+//                outputStream.write(buffer, 0, count);
+//            }
+//            outputStream.close();
+//        } catch (IOException ioe) {
+//        } catch (DataFormatException e) {
+//        }
+//        return outputStream.toByteArray();
+//    }
+
+    @PutMapping("/updatePhoto/{idMember}/{idPhoto}")
+    public Member uplaodImage(@PathVariable Long idMember, @PathVariable Long idPhoto, @RequestParam("imageFile") MultipartFile file) throws IOException {
+        File photo = fileRepository.findById(idPhoto).get();
+        Member member = findMemberById(idMember).get();
+        photo.setName(file.getOriginalFilename());
+        photo.setType(file.getContentType());
+        photo.setData(file.getBytes());
+        fileRepository.saveAndFlush(photo);
+        member.setPhoto(photo);
+        return memberRepository.saveAndFlush(member);
+    }
+
     @GetMapping("/downloadFile/{fileName:.+}")
-    public ResponseEntity < Resource > downloadFile(@PathVariable String fileName, HttpServletRequest request) {
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
         // Load file as Resource
         File databaseFile = fileRepository.findByName(fileName).get();
 
@@ -56,7 +102,8 @@ public class MemberController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + databaseFile.getName() + "\"")
                 .body(new ByteArrayResource(databaseFile.getData()));
     }
-    @PostMapping(value = "/addStudent" , consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+
+    @PostMapping(value = "/addStudent", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Member addMemberStudent(@ModelAttribute("student") Student student,
                                    @RequestPart("cvFile") MultipartFile cvFile,
                                    @RequestPart("photoFile") MultipartFile photoFile
@@ -118,22 +165,18 @@ public class MemberController {
     ) {
         return iMemberService.findByFirstNameAndLastNameAndCinAndEtablishmentAndGrade(firstName, lastName, cin, etablishment, grade);
     }
-
     @GetMapping(value = "/students")
     public List<Student> findAllStudents() {
         return iMemberService.findAllStudents();
     }
-
     @GetMapping(value = "/teachers")
     public List<TeacherResearcher> findAllTeachers() {
         return iMemberService.findAllTeachers();
     }
-
     @GetMapping(value = "/member/{id}")
     public Optional<Member> findMemberById(@PathVariable Long id) {
         return iMemberService.findMemberById(id);
     }
-
     @DeleteMapping(value = "/deleteMember/{id}")
     public void deleteMember(@PathVariable Long id) {
         iMemberService.deleteMember(id);
