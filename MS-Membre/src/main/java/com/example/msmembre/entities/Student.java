@@ -19,4 +19,8 @@ public class Student extends Member implements Serializable {
     private String diploma;
     @ManyToOne
     private TeacherResearcher supervisor;
+    public Student( String email, String password) {
+        this.setEmail(email);
+        this.setPassword(password);
+    }
 }

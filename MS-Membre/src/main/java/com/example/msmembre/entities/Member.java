@@ -8,9 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -45,6 +43,10 @@ public abstract class Member implements Serializable {
     private Date createdDate;
     @OneToOne
     private File photo;
+    private String role;
+
+
+
 //    @Transient
 //    List<ArticleBean> articles;
 

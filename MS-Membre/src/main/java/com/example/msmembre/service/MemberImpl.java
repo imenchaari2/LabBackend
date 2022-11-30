@@ -1,17 +1,14 @@
 package com.example.msmembre.service;
 
 
-import com.example.msmembre.entities.Member;
-import com.example.msmembre.entities.Student;
-import com.example.msmembre.entities.TeacherResearcher;
+import com.example.msmembre.entities.*;
 import com.example.msmembre.repositories.MemberRepository;
 import com.example.msmembre.repositories.StudentRepository;
 import com.example.msmembre.repositories.TeacherResearcherRepository;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,10 +16,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.io.IOException;
 import java.util.*;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 public class MemberImpl implements IMemberService {
@@ -35,23 +29,34 @@ public class MemberImpl implements IMemberService {
     TeacherResearcherRepository teacherResearcherRepository;
     @PersistenceContext
     EntityManager em;
-
+    @Autowired
+    PasswordEncoder encoder;
 
     public Optional<Member> findMemberById(Long id) {
         return memberRepository.findById(id);
     }
+
     public Member addMember(Member m) {
         m.setCreatedDate(new Date());
+        m.setPassword(encoder.encode(m.getPassword()));
+        System.out.println(m.getRole());
+        String role =m.getRole();
+        switch (role) {
+            case "admin" -> {
+                role = String.valueOf(ERole.ROLE_ADMIN);
+            }
+            case "student" -> {
+                role = String.valueOf(ERole.ROLE_STUDENT);
+            }
+            case "teacher" -> {
+                role = String.valueOf(ERole.ROLE_TEACHER);
+            }
+            default -> role = null;
+        }
+        m.setRole(role);
         memberRepository.save(m);
         return m;
     }
-//    public Member addMember(Member m, String cv, String photo) {
-//        m.setCreatedDate(new Date());
-//        m.setCv(cv);
-//        m.setPhoto(photo);
-//        memberRepository.save(m);
-//        return m;
-//    }
 
     public void deleteMember(Long id) {
         List<Student> students = findAllStudentsBySupervisor(id);
