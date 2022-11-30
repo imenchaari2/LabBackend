@@ -8,23 +8,18 @@ import com.example.msmembre.repositories.MemberRepository;
 import com.example.msmembre.service.IMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
-import static java.nio.file.Paths.get;
-import static org.apache.tomcat.util.http.fileupload.FileUploadBase.CONTENT_DISPOSITION;
+
 @RestController()
 @RequestMapping(path = "/api/member")
 @CrossOrigin()
@@ -127,7 +122,7 @@ public class MemberController {
         teacherResearcher.setCv(fileRepository.save(cv));
         return iMemberService.addMember(teacherResearcher);
     }
-//
+
 //    @PutMapping(value = "/updateStudent/{id}")
 //    public Member updateMember(@PathVariable Long id, Student student, @RequestParam("cvFile") MultipartFile cvFile,
 //                               @RequestParam("photoFile") MultipartFile photoFile) throws IOException {
@@ -140,9 +135,14 @@ public class MemberController {
 //        copy(photoFile.getInputStream(), photoStorage, REPLACE_EXISTING);
 //        return iMemberService.updateMember(student, cvName, photoName);
 //    }
-
+//    @PutMapping(value = "/updateTeacherResearcher/{id}")
+//    public Member updateMembre(@PathVariable Long id, @RequestBody TeacherResearcher teacherResearcher) {
+//        teacherResearcher.setId(id);
+//        return iMemberService.updateMember(teacherResearcher);
+//    }
 
     @GetMapping(value = "/members")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Member> findAllMembers() {
         return iMemberService.findAll();
     }
@@ -183,12 +183,6 @@ public class MemberController {
 
     }
 
-//    @PutMapping(value = "/updateTeacherResearcher/{id}")
-//    public Member updateMembre(@PathVariable Long id, @RequestBody TeacherResearcher teacherResearcher) {
-//        teacherResearcher.setId(id);
-//        return iMemberService.updateMember(teacherResearcher);
-//    }
-
     @PutMapping(value = "/affectSupervisorToStudent/{idSupervisor}")
     public Member affectSupervisorToStudent(@RequestBody Student student, @PathVariable Long idSupervisor) {
         return iMemberService.affectSupervisorToStudent(student, idSupervisor);
@@ -206,7 +200,5 @@ public class MemberController {
     public List<Student> getAllStudentsBySupervisorName(@RequestParam String name) {
         return iMemberService.getAllStudentsBySupervisorName(name);
     }
-
-
 
 }
