@@ -1,6 +1,8 @@
 package com.example.articleservice.controllers;
 
+import com.example.articleservice.beans.MemberBean;
 import com.example.articleservice.entities.Article;
+import com.example.articleservice.proxies.MemberProxy;
 import com.example.articleservice.services.ImpArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,17 @@ import java.util.List;
 public class ArticleController {
     @Autowired
     ImpArticleService articleService;
+    @Autowired
+    MemberProxy memberProxy;
+
+    @GetMapping(value = "/members")
+    public List<MemberBean> getEmployees() {
+        return memberProxy.getAllMembers();
+    }
+    @GetMapping("/member/{id}")
+    MemberBean getMemberById(@PathVariable Long id){
+        return memberProxy.getMemberById(id);
+    }
     @PostMapping(value = "/addArticle")
     public Article addArticle(@RequestBody Article article){
         return articleService.addArticle(article);

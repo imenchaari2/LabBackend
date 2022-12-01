@@ -8,9 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -35,16 +33,20 @@ public abstract class Member implements Serializable {
     private String email;
     @NonNull
     private String password;
-    @NonNull
-    private String cv;
+    @OneToOne
+    private File cv;
     @NonNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date birthDate;
     @Temporal(TemporalType.DATE)
     private Date createdDate;
-//    @Lob
-    private String photo;
+    @OneToOne
+    private File photo;
+    private String role;
+
+
+
 //    @Transient
 //    List<ArticleBean> articles;
 
